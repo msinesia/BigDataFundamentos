@@ -1,0 +1,426 @@
+Big Data Fundamentos - DataScienceAcademy
+
+1. Introdução
+2. O que é Big Data
+>> dados não estruturados, formatos dos dados
+80% big data é não estruturado, como arquivo txt
+dificuldade para armazenar os dados não estruturados
+
+>> modelos de dados estruturados armazenados em banco de dados relacionais
+banco de dados relacionais e data wherehouse não são preparados para armazenar grandes volumes de dados não estruturados
+
+Big Data é um conjunto de dados, gerado rapidamente, de várias fontes e formatos
+
+Análise de hipóteses: teste de hipótese / estatística
+
+4 V's Big Data: volume (tamanho dos dados) variedade (formato dos dados) velocidade (geração dos dados) veracidade (confiabilidade dos dados)
++ valor ( resultado obtido com big data) após coleta, armazenamento e análise dos dados.
+Definição inicial dada pela IBM e MCKinsey
+
+3. Introdução ao Hadoop
+>> framework, ou seja, tem vários programas/módulos/componentes que compõem o apache hadoop
+open source 
+armazenamento e processamento em larga escala de grandes conjuntos de dados em clusters
+clusters é um conjunto de computadores que trabalham em conjunto e atuam como se fosse uma máquina somente
+é realizado um balanceamento destas máquinas no momento de realizar o processamento de uma requisição
+hadoop usado para criar e gerenciar clusters, aumentar a capacidade de armazenamento para big data
+leitura e escrita em diversos discos rígidos
+hadoop: armazenamento compartilhado e distribuído confiável para processar grandes volumes de dados através de clusters de computadores
+
+hadoop tem 3 módulos principais:
+1 HDFS hadoop distributed file system : sistema de arquivos para usar o hd de cada máquina do cluster como se fosse um HD único. 
+o hdfs gerencia os discos das máquinas para tratar como um hd único
+o hdfs vai distribuir os dados entre os hds, tanto para uso na gravação como na leitura
+gerencia o armazenamento
+
+2 hadoop yarn: gestao do cluster do processo como um todo
+
+3 map reduce: gerencia o processamento dos dados nos clusters
+
+spark: roda sobre o hdfs, é mais eficiente que o map reduce no processamento dos dados
+
+GFS - google file system: sistema de arquivos que o hadoop foi baseado na sua criação
+
+a segurança do hadoop usa o protocolo kerberos
+
+hadoop é escalável, tolerante a falhas ( se uma máquina do cluster der problema, não afeta o cluster ) 
+
+dúvida: hadoop aceita máquinas no cluster com sistemas operacionais diferentes: exemplo tem-se 2 máquinas, 1 linux e 1 win ... o hadoop
+gerencia normalmente?
+
+hdfs - sistema de arquivos para gerenciar cluster
+- tolerante a falhas
+dúvida: cluster com 2 máquinas, 1 queimou o hd, como ficam as informações persistidas na máquina que queimou o hd ao que diz respeito ao cluster ?
+
+tipos de cluster hdfs: name (master -mestre: gerencia estrutura do sistema de arquivos e metadados de todos os arquivos e dir dentro da estrutura
+esta máquina deve ter mais memória e capacidade por gerenciar os demais no cluster) 
+e data(escravos - worker: busca e armazena os blocos de dados e reporta ao namenode os blocos que foram armazenados) node - estrutura
+
+MapReduce: processar de maneira distribuida os dados armazenados também distribuídos
+ele é independente do hadoop ... ele entrou no framework hadoop o modelo de programação aplicado no mapreduce
+análise de dados usando força bruta
+modelo de processamento em batch
+Funcionamento do mapreduce: CONJUNTO DADOS >> APLICA-SE REGRA DE MAPEAMENTO DESTES DADOS >> RESULTADO É VÁRIOS CONJUNTOS DE PARES (CHAVE + VALOR): KEY0N:VALOR
+Exemplo: nome do usuário = key e valor da nota de avaliação de um filme = valor
+MapReduce = mapeamento e redução
+
+Seek Time x Transfer Rate
+MapReduce é o modelo de programação, estando disponível através do map reduce no framework hadoop
+MapReduce permite executar queries direto nas máquinas do cluster = queries ad-hoc
+Hadoop roda em linha de comando
+A boa performance do hadoop map reduce se dá por causa do seeking e transfer: 
+o map reduce reduz operações de seeking e usa de forma efetiva operações de transfer
+Seek e transfer são conceitos de leitura e escrita em discos
+Seek time = delay para encontrar um arquivo: o map reduce consegue reduzir o tempo para buscar arquivos nos clusters
+Transfer Rate = velocidade para encontrar o arquivo: o map reduce consegue aumentar a velocidade para buscar arquivos nos clusters
+o map reduce foca no transfer rate
+o map reduce é bom para atualizar todo ou grande parte de um conjunto de dados
+em caso de bancos de dados relacionais ... o RDBMS (relational database management system) é bom porque são atualizações de um registro específico
+são poucas linhas e/ou colunas
+o map reduce usa sort e merge para recriar o banco de dados
+rdms foca no seeking
+mapreduce foca no transfer
+Tipos de dados para trabalhar usando hadoop: estruturados (banco relacional) + semi estruturado (arquivos xml por exemplo) + não estruturados (redes sociais, blogs etc)
+map reduce: semi estruturado e não estruturados
+dados relacionais: define antes de armazenar os dados
+não estruturados não tem como definir antes de armazenar
+
+4. Arquitetura Hadoop
+temos uma máquina master node que é a principal e abaixo dela as demais máquinas do cluster (worker slave escravos)
+o master irá gerenciar as demais máquinas do cluster
+a máquina que é o master vai ter o hdfs e o serviço que gerencia o processamento (map reduce) - JobTracker
+o master tem duas funções : gerencia o armazenamento e o processamento distribuído do cluster
+as máquinas slaves também vão ter o hfds e map reduce (TaskTracker), da mesma que a master -
+uma máquina no cluster hadoop pode ter mais de uma função
+Master: namenode (HDFS)gerencia armazenamento sendo o serviço principal, pois eu preciso ter os dados armazenados para seguir com 
+o processamento + jobtracker (mapreduce) 
+Slaves: datanode que vai armazenar os dados de forma distribuida no cluster(HDFS). se ocorrer falha, os dados armazenados tem uma réplica em outra máquina
+e é redistribuido dentro do cluster
+Master: jobtracker (mapreduce) dispara job processamento mapreduce. é um serviço master ... é um gestor
+Slaves: tasktracker (mapreduce) vai executar as tarefas de processamento
+
+***Processo Parte I:
+Dados do oracle, sql server, etl etc >> enviados para a máquina master do cluster >> máquina master dispara para os slaves
+namenode (master) + datanode (slave) armazena os dados
+***Processo Parte II:
+enviar o programa de redução desenvolvido pelo cientista de dados, o mapreduce é o engine que vai processar este programa de mapeamento e redução
+jobtracker recebe (map reduce master) + tasktracker (map reduce slave) efetiva processamento
+
+***Processo Parte III
+o jobtracker e tasktracker consultam o namenode e datanode para saber onde estão os dados para processar de acordo com o que está definido no programa
+de mapeamento e redução
+
+Modos de configuração do Haddop: há 3 formas de fazer
+1. modo standalone: todos os serviços hadoop (namenode + datanode + jobtracker + tasktracker) rodam numa única JMV (máquina virtual java) e mesmo server
+recomendado para realizar (ambiente) testes do haddop: 
+2. pseudo distribuido: serviços hadoop ficam em jvm's individuais mas no mesmo server, ou seja, uma única máquina porém tendo uma jvm para cada serviço
+requer mais memória do cumputador, mas simula os clusters
+3. totalmente distribuido: versão para produção: 1 JVM em cada máquina tendo os serviços do hadoop, podendo ser físico/local ou na nuvem
+
+Os serviços gerenciadores do HFDS são o namenode e o secondary namenode: papel de administrar todo o cluster
+O serviço hfds datanode é slave
+Exemplo: cluster com maquina namenode + maquina secondary namenode + N maquinas slaves com datanode
+Funcionamento: o namenode recebe os jobs, prepara os dados dizendo como serão segregados dentro do cluster, através dos arquivos de configuração
+No arquivo de configuração é definido quantos blocos é desejado assim como o tamanho destes
+Os dados são armazenados em arquivos
+Os arquivos são divididos em N blocos, armazenados e replicados por cada datanode
+Como os dados são replicados, o hfds não tem problemas em caso de falhas dentro de alguma máquina no cluster (tolerência a falhas)
+o hadoop espera as falhas pelo motivo anterior
+>>> namenode consulta o arquivo de configuração >>> para segregar os dados >>> envia aos datanodes
+
+MapReduce: input >> mapeamento >> redução >> output
+Um grande conjunto de dados através do mapeamento e redução é possível obter apenas os dados úteis para análise de acordo com a necessidade
+MapReduce >> listas ordenadas (chaves e valores) >> listas ordenadas ainda menores
+O nível a se parar quanto a redução é de acordo com a necessidade definida pelo cientista de dados. Por isso antes de tudo deve ser definido qual o problema a ser resolvido
+Há duas operações básicas no mapreduce: mapeamento e redução
+No mapeamento os dados são separados em pares: key + value e enviados para os nodes e processados
+Na redução os dados são agregados em conjuntos = datasets = menores aos dados coletados antes de aplicar o mapeamento e redução
+
+CACHE DISTRIBUIDO E MODELO DE SEGURANÇA HADOOP
+>> hadoop tem caches dos arquivos usados pelas aplicações
+Quando o mapreduce precisa acessar dados em comum há ganho de performance no processamento devido ao cache distribuido. isso também devido ao fato
+que o cache permite que um node do cluster acesse os dados no filesystem local e não precisando solicitar em outro node
+>> segurança o hadoop usa o protocolo kerberos: por padrao o hadoop é executado no modo não seguro, após configurado é executado em modo seguro onde
+cada usuário e serviço é autenticado no kerberos
+o kerberos deve estar configurado para validar as credenciais do cliente, fazendo este solicitar uma permissão válida para o ambiente do hadoop
+
+Cluster Single-Node: 
+
+5. Ecossistema Hadoop
+Apache Zookeeper: coordenar serviços em aplicações distribuídas
+é um serviço de coordenação distribuída para gerenciar grandes conjuntos de hosts (clusters)
+
+Apache Oozie: gerenciador de fluxo de trabalho, permite agendar execução de jobs e gerenciar a execução destes jobs num cluster
+Sistema agendamento de fluxos de trabalho (workflow) ... usado principalmente para gerenciar os jobs do mapreduce
+
+Apache Hive: data warehouse que funciona com o haddop e mapreduce
+sistema de armazenamento de dados para hadoop que facilita agregar os dados para relatórios e análise de grandes conjuntos de dados (big data)
+usa os dados armazenados no hdfs
+permite consultar os dados usando HiveQL (HQL)
+tem tolerância a falha para armazenamento de dados e depende do map reduce para execução
+O hive para fazer sentido tem que estar rodando em uma estrutura hadoop, precisa dos dados no hdfs e depende do mapreduce
+permite conexões jdbc / odbc, pode assim ser integrado facilmente com tableau, microstrategy, microsoft power bi etc
+é orientado a batch e tem alta latência para executar queries
+gera jobs mapreduce que executam no cluster hadoop
+o hive é uma interface onde no backend ele gera um job mapreduce
+foi desenvolvido pelo facebook
+hive é um sistema para gestão de query de dados não estruturados, em formato estruturado
+hive usa hdfs para armazenamento e pesquisa de dados e mapreduce para execução
+HQL : linguagem usado no engine hive
+
+Apache sqoop: importar e exportar dados de bancos de dados relacionais == sql to hadoop = sqoop
+usa conexão jdbc para conectar aos bancos de dados relacionais
+pode criar tabelas no hive e suporta importação incremental (esqueceu algo por exemplo, faz uma importação incremental)
+
+Apache pig: usado para analisar grandes conjuntos de dados que representam fluxos de dados
+pode realizar operações de manipulação de dados no hadoop
+para escrever programas de análise de dados usando o apache pig, é usado a linguagem de alto nível: pig latin
+Os scripts criados sao convertidos internamente para tarefas de mapeamento e redução
+Apache Pig >> pig engine >> scripts pig latin >> pig engine >> converte >> jobs mapreduce
+Apache pig: composto por pig latin (linguagem) 
+e o runtime engine (compilador que produz sequencias de programas mapreduce
+utiliza hdfs para armazenar e buscar dados
+usado para interagir com sistemas hadoop
+valida e compila scripts em sequencias de jobs mapreduce
+)
+
+Apache HBase: bando de dados não relacional preparado para trabalhar com grandes conjuntos de dados
+roda sobre hdfs
+orientado a coluna, construido sobre o hdfs (sistema de arquivos)
+banco de dados oficial do hadoop
+banco de dados no sql
+modelo de dados similar ao  big table do google: fornecendo acesso aleatório rápido a grandes quantidades de dados
+aproveita a tolerancia a falhas fornecida pelo sistema de arquivos do hadoop
+fornece em tempo real acesso aletaorio de leitura e gravação aos dados do hdfs
+os dados podem ser armazenados direto no hdfs ou através do hbase
+utiliza o modelo "key:value" essas chaves + valores são do tipo byte-array
+valores são armazenados por ordem de acordo com a chave
+os valores podem ser acessados por suas respectivas chaves
+as tabelas não possuem schemas
+objetivo é armazenar tabelas grandes com bilhões de registros
+menor número de colunas, tabela única mas com muitos registros armazenados
+hbase possui dois tipos de nodes: master e regionserver (detalhes vide imagem arq_hbase)
+diferenças entre hbase vs banco de dados relacional (detalhes vide imagem hbaseVSRDBMS)
+hbase tem particionamento automático, no relacional pode ser automático ou manual
+hbase é escalável de forma horizontal: aumenta máquinas no cluster ... no relacional aumenta hardware é aumento vertical (mais memória, espaço em disco etc)
+hbase tem tolerência a falha devido ao hdfs, o relacional pode ou não ter
+
+Apache Flume: serviço que permite enviar dados direto ao hdfs
+opção para carregar dados streaming (gerados em tempo real) para o hdfs
+usado em aplicações analíticas em tempo real, coleta logs de servidores - análise de dados online
+similar ao sqoop
+
+Apache Mahout: após ter os dados na base aplicar um algoritmo de machine learning para analise de dados
+biblioteca open source de algoritmos de machine learning, escalável e com foco em clustering, classificação e sistemas de recomendação
+aplicar aprendizado de máquina aos dados armazenados no hadoop - hdfs
+utiliza dois principais algoritmos de clustering, testes de regressão, modelagem estatística e implementa usando mapreduce 
+o mahout deve ser usado quando:
+1. necessitar de algoritmos de machine learning com alta performance
+2. necessitar de solução open source e gratuita
+3. possuir grande conjunto de dados e pretende usar R ou Python ou Octave por exemplo
+4. o processamento de dados será feito usando modelo batch (dados offline, ou seja, não são gerados em tempo real)
+5. precisa de biblioteca madura no mercado e testado
+
+Apache Kafka: análise de dados em tempo real
+não precisa armazenar para depois analisar, e sim analisar apenas e entregamos o resultado online não precisando ter os dados guardados
+desenvolvido pelo linkedin
+gerencia fluxo de dados em tempo real
+coleta os dados em alto volume e torna estes dados disponiveis em tempo real para uso de outras aplicações
+produção de dados (producer) >> kafka cluster coleta os dados e envia para consumers >> aplica-se machine learning por exemplo, devolvendo o resultado
+tudo online, tempo real
+
+6. Soluções comerciais com Hadoop
+apesar de ser open source há os custos para implementar, manter, profissionais qualificados etc
+Motivos para obter solução comercial do haddop:
+	1. suporte
+	2. confiança: se ocorrer bugs .. uma solução comercial corrige, caso contrário fica dependente da comunidade corrigir
+	3. pacote completo: oferece toda infra necessária para big data
+Algumas soluções comerciais do hadoop: cloudera + amazon web services (amazon emr) + datastax + ibm + mapR + microsoft
+Solução da Amazon: EMR: Amazon Elastic MapReduce: é uma plataforma de análise de dados organizada e construída sobre a arquitetura
+do hdfs do haddop. Roda em nuvem. Criar a conta na AWS para testar e aprender sobre o EMR
+Solução cloudera hadoop: pesquisar cerificações + download quickstart vms
+Solução Hortonworks: concorrente direto do cloudera + 
+Solução MapR
+Solução Pivotal HD
+Solução Windows Azure HDInsight - em nuvem
+
+7. Introdução Apache Spark
+Apache Spark é um framework.
+Spark é um motor rápido e de uso geral para processamento de dados em larga escala
+Processa de forma rápida os dados distribuidos em clusters
+O spark é mais rápido do que o MapRecude do hadoop
+O spark pode processar 100x maid rápido do que o mapreduce em memória e 10x mais rápido processando em disco
+Combina Sql Streaming (flume e kafka) e análise complexa, usa ferramentas de alto nível: spark sql + MLlib + GraphX + spark streaming
+Integra com hadoop através do yarn, permite leitura e escrita dos dados no hdfs
+mapreduce não roda bem em casos de computação iterativa (quando realiza vários ciclos de uma mesma operação), exemplo treinamento de um algoritmo
+de machine learning
+spark foi criado com base na computação iterativa
+os benefícios do spark é maior em cluster
+suporta dados estruturados (banco de dados relacional), json, hive e outras fontes de dados
+há soluções comerciais do spark: quais ?
+3 principais benefícios do spark:
+	1. facilidade de uso: tem integração com apis em java scala R e python
+	2. velocidade: processamento realizado em memória
+	3. uso geral: pode usar diferentes tipos de computação como: processamento de linguagem sql (sql spark), processamento de texto,
+	machine learning (MLlib), processamento de grafos (GraphX)
+
+Componentes do framework spark:
+1.spark sql - dados estruturados. é possivel conectar em um banco de dados relacional, coletar dados e processar no spark
+2. spark streaming - processamento de dados em tempo real
+3. MLlibe - machine learning
+4. GraphX - processamento de grafos
+5. spark core: contém as funcionalidades básicas do spark, como agendamento de tarefas, gestão de memória, recuperação de falha, e sistemas
+de armazenamento
+6. standalone scheduler
+7. yarn
+8. mesos
+
+spark é indicado para processamento de dados em memória. se for em disco, mantém o mapreduce
+Apache Storm: processamento de streaming - dados em tempo real. A gestão dos dados no cluster é feito pelo zookeeper.
+é um dos líderes em análise de tempo real
+Beneficios: robusto + open source + fácil de usar + tolerante a falhas + flexível + confiável + suporta várias linguagens de programação
+e é muito rápido
+
+8. bancos de dados NoSQL
+armazenamento e processamento distrubuído >> framework hadoop
+processamento distrubuído >> apache spark
+
+ambos tem objetivo principal o processamento dos dados
+nem o spark e nem o hadoop armazena dados, apenas armazena com hdfs nos HD's do cluster, processa e entrega o resultado
+ou seja, não necessariamente estes dados estarão em uma base de dados, seja relacional ou não relacional
+
+há casos em que haja necessidade de salvar os dados em uma base por N razões, como necessidade de consultar posteriormente os dados
+
+uma nova categoria de bancos de dados: não relacional = nosql: armazena dados não estruturados. Ou seja, ideal para Big Data, afinal
+Big Data tem em média 80% dos dados não estruturados
+
+Necessidade do surgimento do banco de dados nosql: os relacionais nao foram criados para tratar big data - dados não estruturados - 
+no caso do relacional os dados são armazenados em linhas e colunas e manipulados por querys - cruds
+
+o nosql atende a necessidade do big data: grande volume de dados + gerados em uma alta velocidade e não estruturados
+
+bancos de dados nosql são bancos distribuídos e não relacionais, projetados para atender big data.
+arquitetura mais escalavel comparados aos bancos de dados relacionais
+permite consulta de dados semi estruturados e nao estruturados
+
+categorias de bancos de dados nosql: 
+	1. graph databases: aderente a redes sociais online, onde os nós são entidades e os laçoes são as interconexões entre as entidades
+	é só atravessar o grafo seguindo as relações. usado para lidar com problemas de sistemas de recomendação, listas de controle de acesso
+	tem alta capacidade de trabalhar com dados altamente interligados
+	** pesquisar análise em grafos de big data. Ex.: Neo4J, FlockDB, GraphDB, ArangoDB 
+	2. document databases: armazena milhões de documentos, ex.: dados do funcionário mais o currículo dele. Ex. mongoDB, CouchDB, RavenDB, Terrastore
+	3. key values stores: dados armazenados no formato chave-valor. os valores são identificados pelas chaves. as pesquisas sao feitas através 
+	das chaves. Ex.: AWS DynamoDB, Redis, MemcacheDB, Oracle NosqlDB
+	4. column family stores: bancos orientados a colunas. os dados são organizados em grupos de colunas. o armazenamento e as pesquisas são 
+	baseados em chaves. Ex.: Hbase e Hypertable, Accumulo, Cassandra
+têm mais de 30 bancos nosql: site para consulta http://nosql-database.org
+Cassandra: banco de dados hibrido, atendendo a mais de um tipo de categoria.
+Características de bancos de dados nosql: representação de dados sem schema, dados armazenados no formato nativo, velocidade, escalabilidade
+
+MONGODB
+líder das categorias nosql em geral, um dos mais usados no mundo
+orientado a documentos: substitui o conceito de linhas e colunas por documentos
+open source, desenvolvido em c++
+indexação: suporta indices secundários
+agregação: permite construir agregações complexas de dados, otimizando o desempenho
+tipos de dados especiais: suporta coleções time-to-live para dados que expiram em determinado tempo, como sessões
+armazenamento: suporta grandes quantidades de dados, nao suporta joins e transações entre linhas
+de - para mongodb vs banco relacional
+	1. database = database
+	2. collection = table
+	3. document = tuple/row
+	4. field = column
+	5. embedded documents = table join
+	6. PK = PK
+onde usar mongoDB: big data + gestão de conteúdo + infra social e mobile + gestao de dados e usuarios + data hub
+DATA HUB: dentro da infra >> data wherehouse + data lake + BD nosql
+
+CASSANDRA
+banco nosql, livremente distribuido (open source), alta performance, extremamente escalável, tolerante a falha
+open source
+voltado para trabalhar em clusters
+
+Apache COUCHDB 
+voltado para a web
+nosql
+dados são armazenados em documentos json (java script object notation): campos que podem ter strings,
+numeros, datas, listas ordenadas, mapas associativos
+suporta app web e mobile
+é distribuído em pares com um server e um client, que podem ter cópias independentes do meso banco de dados
+deu pontapé inicial ao nosqsl
+
+9. Como iniciar um projeto de big data
+
+O QUE É BIG DATA ANALYTICS
+o valor do big data é realmente extraido quando aplicado analise de dados - data science e machine learning == big data analytics
+
+soluções de big data em 4 areas de negócios
+	1. manufatura, industrias
+	2. finanças
+	3. saúde
+	4. varejo
+Sugestão - visão geral:
+	1. definição do business case: 
+	   definir o objetivo do projeto: o que quer alcançar no final do projeto de big data analytics
+	   saber qual ferramenta, metricas de avaliação, se chegou no objetivo, direção do negócio, os obstáculos, os interessados e seus papeis
+	   caso de uso mais importante definido pelos stakeholders
+	   qual as areas que podem ou querem ser atendidas
+	   quais os problemas em termos não tecnicos
+	   documento criado junto com os stakeholders, para ter a visao geral do projeto
+	   avaliar as soluções atuais: se já tem ou nao data wherehouse por exemplo
+	   quais os objetivos comerciais da empresa
+	   quais as metricas para medir se o projeto está seguindo com sucesso ou nao
+	   o documento deve ser apresentado aos tomadores de decisao se está de acordo ou não
+	   estes tipos de projetos vem das áreas de negocios
+	   big data é para resolver problemas de negocios
+	2. planejamento do projeto
+	   especificar as metas em termos comerciais - mensuráveis
+	   identificar as questoes comercias com maior precisao possivel
+	   o orçamento so pode ser garantido de investimento garantindo o retorno financeiro a empresa
+	   os requisitos de negocios
+	   como seria uma implementação bem sucedida de big data
+	   documentar os criterios de sucesso
+	   cada objetivo comercial deve ter uma metricas
+	   os stakeholders devem estar alinhados com os objetivos e metricas: alinhas as expectativas
+	   determinar o escopo adequado
+	   seguir o escopo dentro do projeto
+	   fechar o orçamento do projeto
+	   tco - total cost of ownership
+	   definir linha de tempo: a principio uma empresa agil nao consegue implementar em menos de 7 ou 9 meses o projeto. uma empresa com maior
+	  burocracia este tempo aumenta
+	   definir os requisitos tecnicos
+	3. definição dos requisitos tecnicos
+	   criar arquitetura do projeto
+	   definir integração de ambientes e sistemas
+	   definir a infraestrutura
+	   suporte - quem ?
+	   segurança
+	   requisitos de infra
+	   quais as fontes de dados
+	   como mesclar as diferentes fontes de dados
+	   quais ferramentas de análise
+	   se vai usar ferramentas open source ou comerciais ou ambos
+	   quais habilidades pra trabalhar: recursos, equipe etc
+	   vai usar data lakes: em nuvem ou local
+	   conjunto de infra pra big data: enterprise data hub
+	   quais ferramentas de relatorio e visualização: open source ou comercial
+	   7 a 9 meses para implementar se houver maturidade e trabalhar de forma ágil - previsão
+	4. criação de um "total business value assessment"
+	   time to business: em quanto tempo a empresa vai começar a ver resultado. estima-se uma média de 3 anos
+	   quao facil vai ser a solução ?
+	   estamos preparados ou o que precisamos fazer para nos preparar
+	   implementar uma cultura orientada a dados e big data ?
+	   tem que ser de cima para baixo - top down essa mudança de cultura se necessário
+	   escalabilidade - vantagem de usar ambiente em nuvem 
+	   uso em nuvem pode ser publico ou privado
+	   big data nao ha padroes: a empresa deve definir os padroes de implementação
+	   suporte e manutenção
+	   há recursos habilitados para atender o suporte e manutenção do ambiente
+	   fase de rollout
+	   
+	
+
+
+
+
+ 
